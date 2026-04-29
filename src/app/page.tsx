@@ -22,10 +22,16 @@ import {
   ArrowRightLeft,
   Building2,
   Briefcase,
-  UserCheck
+  UserCheck,
+  CheckCircle2,
+  Mail,
+  MessageSquare,
+  Loader2
 } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+
+import { submitLead } from '@/lib/leads';
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -217,6 +223,8 @@ const Logo = () => {
 const ROICalculator = ({ t, currency, industry, setCurrency, setIndustry }: any) => {
   const [hours, setHours] = useState(10);
   const [team, setTeam] = useState(5);
+  const [email, setEmail] = useState('');
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   
   const hourlyRates = {
     riad: 60, // MAD per hour
@@ -236,6 +244,76 @@ const ROICalculator = ({ t, currency, industry, setCurrency, setIndustry }: any)
     return yearlyMAD / exchangeRates[currency as keyof typeof exchangeRates];
   }, [hours, team, currency, industry]);
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+
+    setStatus('loading');
+    const result = await submitLead({
+      email,
+      savings: Math.round(savings),
+      teamSize: team,
+      message: `Lead from ROI Calculator: ${industry} industry, losing ${hours}h/week. Projected savings: ${currency} ${Math.round(savings).toLocaleString()}/year.`
+    });
+
+    if (result.success) {
+      setStatus('success');
+    } else {
+      setStatus('error');
+      // Reset after a few seconds
+      setTimeout(() => setStatus('idle'), 3000);
+    }
+  };
+
+  if (status === 'success') {
+    return (
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="glass p-8 md:p-10 rounded-[2.5rem] relative overflow-hidden shadow-2xl text-center min-h-[500px] flex flex-col justify-center items-center"
+      >
+        <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
+          <CheckCircle2 className="w-48 h-48" />
+        </div>
+        
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ type: "spring", damping: 12, stiffness: 200, delay: 0.2 }}
+          className="w-20 h-20 bg-neon-mint/20 rounded-full flex items-center justify-center mb-8 border border-neon-mint/30"
+        >
+          <CheckCircle2 className="w-10 h-10 text-neon-mint" />
+        </motion.div>
+
+        <h3 className="text-3xl font-black text-white mb-6 uppercase tracking-tighter italic">Analysis Complete</h3>
+        <p className="text-white/60 text-lg mb-10 max-w-sm leading-relaxed">
+          Your custom <span className="text-neon-cyan">AI Roadmap</span> is being generated. Check your inbox.
+        </p>
+
+        <div className="flex flex-col gap-4 w-full">
+          <a 
+            href={`https://wa.me/212000000000?text=${encodeURIComponent("Hi Nova AI, I just ran my ROI calculation and I want to discuss my results.")}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full flex items-center justify-center gap-3 px-8 py-4 rounded-2xl bg-white/10 border border-white/20 text-white font-bold uppercase tracking-widest text-[11px] hover:bg-white/20 transition-all active:scale-95 group"
+          >
+            <MessageSquare className="w-4 h-4 text-neon-cyan group-hover:scale-110 transition-transform" />
+            Talk to an Expert on WhatsApp
+          </a>
+          
+          <button 
+            onClick={() => {
+              setStatus('idle');
+              setEmail('');
+            }}
+            className="text-[10px] font-mono text-white/30 uppercase tracking-[0.3em] hover:text-white/60 transition-colors"
+          >
+            Run another calculation
+          </button>
+        </div>
+      </motion.div>
+    );
+  }
 
   return (
     <div className="glass p-8 md:p-10 rounded-[2.5rem] relative overflow-hidden shadow-2xl">
@@ -262,7 +340,7 @@ const ROICalculator = ({ t, currency, industry, setCurrency, setIndustry }: any)
       </div>
 
 
-      <div className="space-y-10 relative z-10">
+      <form onSubmit={handleSubmit} className="space-y-8 relative z-10">
         <div>
           <label className="text-[10px] font-mono uppercase tracking-[0.2em] text-neon-magenta mb-4 block">{t.industry}</label>
           <div className="grid grid-cols-3 gap-3">
@@ -273,6 +351,7 @@ const ROICalculator = ({ t, currency, industry, setCurrency, setIndustry }: any)
             ].map((ind) => (
               <button
                 key={ind.id}
+                type="button"
                 onClick={() => setIndustry(ind.id)}
                 className={cn(
                   "flex flex-col items-center justify-center gap-2 p-3 rounded-2xl border transition-all",
@@ -312,33 +391,76 @@ const ROICalculator = ({ t, currency, industry, setCurrency, setIndustry }: any)
           />
         </div>
 
-        <div className="pt-10 border-t border-white/10">
-          <div className="text-[10px] font-mono uppercase tracking-[0.3em] text-white/40 mb-3">{t.savings}</div>
-          <AnimatePresence mode="wait">
-            <motion.div 
-              key={`${savings}-${currency}`}
-              initial={{ opacity: 0, y: 10, scale: 0.95 }}
-              animate={{ 
-                opacity: 1, 
-                y: 0, 
-                scale: 1,
-                filter: ["brightness(1)", "brightness(1.5)", "brightness(1)"]
-              }}
-              exit={{ opacity: 0, y: -10, scale: 1.05 }}
-              transition={{ 
-                duration: 0.4,
-                filter: { duration: 0.5 }
-              }}
-              className="text-6xl font-black text-silver flex items-baseline gap-2 text-glow-cyan"
-            >
-              <span className="text-2xl text-neon-cyan font-mono">
-                {currency === 'USD' ? '$' : currency === 'EUR' ? '€' : 'DH'}
-              </span>
-              {Math.round(savings).toLocaleString()}
-            </motion.div>
-          </AnimatePresence>
+        <div className="relative">
+          <label className="text-[10px] font-mono uppercase tracking-[0.2em] text-neon-magenta mb-4 block">Professional Email</label>
+          <div className="relative">
+            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" />
+            <input 
+              type="email" 
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="name@company.com"
+              className="w-full bg-midnight/50 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-sm text-white placeholder:text-white/10 focus:outline-none focus:border-neon-cyan transition-colors"
+            />
+          </div>
         </div>
-      </div>
+
+        <div className="pt-8 border-t border-white/10">
+          <div className="flex justify-between items-end mb-6">
+            <div>
+              <div className="text-[10px] font-mono uppercase tracking-[0.3em] text-white/40 mb-1">{t.savings}</div>
+              <AnimatePresence mode="wait">
+                <motion.div 
+                  key={`${savings}-${currency}`}
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ 
+                    opacity: 1, 
+                    y: 0, 
+                    scale: 1,
+                    filter: ["brightness(1)", "brightness(1.5)", "brightness(1)"]
+                  }}
+                  exit={{ opacity: 0, y: -10, scale: 1.05 }}
+                  transition={{ 
+                    duration: 0.4,
+                    filter: { duration: 0.5 }
+                  }}
+                  className="text-4xl font-black text-silver flex items-baseline gap-2 text-glow-cyan"
+                >
+                  <span className="text-xl text-neon-cyan font-mono">
+                    {currency === 'USD' ? '$' : currency === 'EUR' ? '€' : 'DH'}
+                  </span>
+                  {Math.round(savings).toLocaleString()}
+                </motion.div>
+              </AnimatePresence>
+            </div>
+            
+            <button
+              type="submit"
+              disabled={status === 'loading'}
+              className={cn(
+                "px-8 py-4 rounded-2xl font-black uppercase tracking-[0.15em] text-[11px] transition-all flex items-center gap-3",
+                status === 'loading' 
+                  ? "bg-white/10 text-white/40 cursor-wait"
+                  : status === 'error'
+                  ? "bg-red-500/20 text-red-500 border border-red-500/50"
+                  : "bg-neon-cyan text-midnight hover:scale-105 hover:shadow-[0_0_30px_rgba(6,182,212,0.5)]"
+              )}
+            >
+              {status === 'loading' ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Analyzing...
+                </>
+              ) : status === 'error' ? (
+                "Retry Error"
+              ) : (
+                "Audit My Business"
+              )}
+            </button>
+          </div>
+        </div>
+      </form>
     </div>
   );
 };
