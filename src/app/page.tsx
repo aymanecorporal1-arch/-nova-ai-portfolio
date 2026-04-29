@@ -288,7 +288,7 @@ const ROICalculator = ({ t, currency, industry, setCurrency, setIndustry }: any)
           </div>
         </div>
 
-        <div>
+        <div className="relative">
           <div className="flex justify-between mb-4">
             <label className="text-[10px] font-mono uppercase tracking-[0.2em] text-neon-magenta">{t.hours}</label>
             <span className="text-neon-cyan font-bold font-mono">{hours}h</span>
@@ -300,7 +300,7 @@ const ROICalculator = ({ t, currency, industry, setCurrency, setIndustry }: any)
           />
         </div>
 
-        <div>
+        <div className="relative">
           <div className="flex justify-between mb-4">
             <label className="text-[10px] font-mono uppercase tracking-[0.2em] text-neon-magenta">{t.team}</label>
             <span className="text-neon-cyan font-bold font-mono">{team}</span>
@@ -376,7 +376,7 @@ const TiltCard = ({ children, className }: { children: React.ReactNode, classNam
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
-      className={cn("bento-card p-8 rounded-3xl relative group overflow-hidden", className)}
+      className={cn("bento-card p-8 rounded-3xl relative group overflow-hidden bg-white/5 backdrop-blur-md", className)}
     >
       <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
       <div style={{ transform: "translateZ(40px)" }} className="relative z-10 h-full flex flex-col">
@@ -445,7 +445,7 @@ export default function LandingPage() {
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-black tracking-tight mb-6 leading-[0.9] text-white uppercase">
                 {t.hero.title}
                 <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-white/80 to-white/30">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-neon-cyan">
                   {t.hero.subtitle}
                 </span>
               </h1>
@@ -649,6 +649,65 @@ export default function LandingPage() {
           </div>
         </motion.div>
       </section>
+
+      {/* Discovery Call Booking */}
+      <section id="discovery" className="py-32 px-6 max-w-5xl mx-auto text-center">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          className="glass rounded-[3rem] p-12 md:p-20 border-white/10 relative overflow-hidden group"
+        >
+          {/* Animated background glow */}
+          <div className="absolute -top-24 -left-24 w-64 h-64 bg-neon-cyan/20 blur-[100px] rounded-full group-hover:bg-neon-cyan/30 transition-colors duration-700" />
+          <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-neon-magenta/10 blur-[100px] rounded-full group-hover:bg-neon-magenta/20 transition-colors duration-700" />
+
+          <div className="relative z-10">
+            <h2 className="text-4xl md:text-6xl font-black mb-8 tracking-tighter uppercase italic">
+              Ready for <span className="text-neon-cyan">The Leap?</span>
+            </h2>
+            <p className="text-white/50 text-lg mb-10 max-w-2xl mx-auto">
+              Book a 15-minute Discovery Call to architect your agentic future. 
+              Reserved for high-growth enterprises seeking the <span className="text-white">Digital Aristocracy</span> status.
+            </p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 text-left max-w-3xl mx-auto">
+              {[
+                { icon: <Zap className="w-5 h-5 text-neon-cyan" />, title: "Technical Audit", desc: "Identify $100k+ in automation waste." },
+                { icon: <Bot className="w-5 h-5 text-neon-magenta" />, title: "Agent Roadmap", desc: "Custom blueprint for your scale." },
+                { icon: <Shield className="w-5 h-5 text-neon-mint" />, title: "Secure Scale", desc: "Zero-knowledge architecture plan." }
+              ].map((item, i) => (
+                <div key={i} className="flex gap-4 items-start p-4 rounded-xl bg-white/5 border border-white/10">
+                  <div className="mt-1">{item.icon}</div>
+                  <div>
+                    <div className="text-[10px] font-bold uppercase tracking-widest text-white mb-1">{item.title}</div>
+                    <div className="text-[9px] text-white/40 leading-tight">{item.desc}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <button className="px-12 py-5 rounded-2xl bg-white text-midnight font-black uppercase tracking-[0.2em] text-sm hover:bg-neon-cyan hover:text-white transition-all shadow-[0_0_50px_rgba(255,255,255,0.1)] hover:shadow-[0_0_50px_rgba(6,182,212,0.4)] active:scale-95">
+              Schedule My Session
+            </button>
+          </div>
+        </motion.div>
+      </section>
+
+      {/* Floating WhatsApp Button */}
+      <a 
+        href="https://wa.me/212000000000" 
+        target="_blank" 
+        rel="noopener noreferrer"
+        className="fixed bottom-8 right-8 z-[100] w-16 h-16 bg-[#25D366] rounded-full flex items-center justify-center shadow-[0_10px_30px_rgba(37,211,102,0.4)] hover:scale-110 active:scale-95 transition-all group"
+      >
+        <div className="absolute -top-12 right-0 bg-white text-midnight text-[10px] font-black uppercase px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-xl">
+          Contact Support (MA)
+        </div>
+        <svg viewBox="0 0 24 24" className="w-8 h-8 text-white fill-current">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.72.94 3.659 1.437 5.634 1.437h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+        </svg>
+      </a>
 
       <footer className="py-24 border-t border-white/10 text-center bg-midnight/90 backdrop-blur-xl relative">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-px bg-gradient-to-r from-transparent via-neon-cyan/50 to-transparent" />
